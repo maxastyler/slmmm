@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package slm;
+
+message PhaseMask {
+  bytes phasemask = 1;
+  int32 width = 2;
+  int32 height = 3;
+}
+
+message LUT {
+  bytes lut = 4;
+}
+
+message 
+
+message Response {
+  bool completed = 5;
+  string error = 6;
+}
+
+service SLM {
+  rpc SetPhaseMask(PhaseMask) returns (Response) {}
+  rpc SetLUT(LUT) returns (Response) {}
+}
