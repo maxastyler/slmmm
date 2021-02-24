@@ -41,6 +41,11 @@ Features
 * Runs a server, so you don't need to worry about running a UI event loop
 * Convenience class `SLMController` to allow easy interaction with the SLM screen
 
+Todo
+----
+
+* Implement the `set_position` function to set an image's position on the screen
+
 Credits
 -------
 
