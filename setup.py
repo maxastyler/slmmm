@@ -10,7 +10,8 @@ with open('README.rst') as readme_file:
 with open('HISTORY.rst') as history_file:
     history = history_file.read()
 
-requirements = [ ]
+requirements = ["numpy>=1.19", "PyQt5>=5.14",
+                "grpcio>=1.35", "grpcio-tools>=1.35"]
 
 setup_requirements = ['pytest-runner', ]
 
@@ -31,7 +32,7 @@ setup(
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
     ],
-    description="A grpc-controlled slm controller running with Qt5 and pyqtgraph",
+    description="A grpc-controlled slm controller running with Qt5",
     install_requires=requirements,
     license="MIT license",
     long_description=readme + '\n\n' + history,

@@ -26,7 +26,8 @@ A grpc-controlled slm controller running with Qt5 and pyqtgraph
 Features
 --------
 
-* TODO
+* Runs a server, so you don't need to worry about running a UI event loop
+* Convenience class `SLMController` to allow easy interaction with the SLM screen
 
 Credits
 -------

@@ -10,7 +10,6 @@ pkgs.mkShell {
         pyls-mypy
         grpcio
         grpcio-tools
-        pyqtgraph
         pyqt5
       ])).override (args: { ignoreCollisions = true; }))
     pkgs.qt5Full
