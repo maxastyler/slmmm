@@ -3,7 +3,9 @@ import logging
 
 import PyQt5.QtWidgets as qw
 import PyQt5.QtCore as qc
+import PyQt5.QtGui as qg
 import pyqtgraph as pg
+import socket
 
 import numpy as np
 
@@ -13,11 +15,13 @@ from grpc import aio
 import slm_pb2
 import slm_pb2_grpc
 
+import multiprocessing
 
-async def serve(worker) -> None:
+
+async def serve(worker, port) -> None:
     server = grpc.aio.server()
     slm_pb2_grpc.add_SLMServicer_to_server(SLM(worker), server)
-    listen_addr = '[::]:50051'
+    listen_addr = f'[::]:{port}'
     server.add_insecure_port(listen_addr)
     await server.start()
     try:
@@ -45,6 +49,7 @@ class SLM(slm_pb2_grpc.SLMServicer):
     async def SetLUT(self, request, context):
         try:
             new_lut = np.frombuffer(request.lut, dtype=float)
+            print(new_lut)
             self.worker.set_lut.emit(new_lut)
             return slm_pb2.Response(completed=True)
         except ValueError:
@@ -56,13 +61,14 @@ class SLMWorker(qc.QObject):
     set_image = qc.pyqtSignal(np.ndarray)
     set_lut = qc.pyqtSignal(np.ndarray)
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, port, *args, **kwargs):
         super().__init__()
         self.start.connect(self.run)
+        self.port = port
 
     @qc.pyqtSlot()
     def run(self):
-        asyncio.run(serve(self))
+        asyncio.run(serve(self, self.port))
 
 
 class SLMDisplay(qc.QObject):
@@ -72,6 +78,7 @@ class SLMDisplay(qc.QObject):
     def __init__(self,
                  window_title,
                  screen,
+                 port,
                  slm_display_size=None,
                  slm_position=(0, 0)):
         super().__init__()
@@ -79,7 +86,7 @@ class SLMDisplay(qc.QObject):
         self.thread = qc.QThread()
         self.thread.start()
 
-        self.worker = SLMWorker()
+        self.worker = SLMWorker(port)
         self.worker.set_image.connect(self.set_image)
         self.worker.set_lut.connect(self.set_LUT)
 
@@ -216,9 +223,54 @@ class FullScreenPlot(pg.PlotWidget):
         """
         self.hide()
 
+def is_port_in_use(port):
+    host = ''
+    in_use = False
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        try:
+            s.bind((host, port))
+        except:
+            in_use = True
+    return in_use
 
-if __name__ == '__main__':
+def qt_setup(port):
     import sys
     app = qw.QApplication(sys.argv)
-    w = SLMDisplay("Stinky butts", app.screens()[0])
+    # w = SLMDisplay("Stinky butts", app.screens()[0])
+    d = SLMDisplay("hi", app.screens()[0], port)
+    # d.show()
+    w, h = (300, 300)
+    im = qg.QImage(np.random.randint(0, 100, (w, h), dtype=np.uint8), w, h, qg.QImage.Format_Grayscale8)
+    pm = qg.QPixmap(im)
+    scene = qg.QGraphicsScene()
+    scene.addPixmap(pm)
+    gview = qg.QGraphicsView()
+    gview.setScene(scene)
+    window = qw.QMainWindow()
+    window.setCentralWidget(gview)
+    window.show()
     app.exec()
+
+# class SLMController()
+
+if __name__ == '__main__':
+    print(is_port_in_use(8080))
+    p = multiprocessing.Process(target = qt_setup, args = (8080,))
+    p.daemon = True
+    p.start()
+    # p_2 = multiprocessing.Process(target = qt_setup, args = (7069,))
+    # p_2.start()
+    import slm_client
+    import time
+    # print("HI THREE")
+    # print(is_port_in_use(7069))
+    # asyncio.run(slm_client.run())
+    while True:
+        time.sleep(1)
+        print("OI OIO OI OI ")
+    # time.sleep(2)
+    # print(is_port_in_use(8080))
+    # p.terminate()
+    # print("\n\n\nHI THERE :))))\n\n\n")
+    # p.terminate()
+    # p_2.terminate()

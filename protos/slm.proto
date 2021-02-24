@@ -1,3 +1,7 @@
+/*
+  The server is an SLM server which can display greyscale images on a fullscreen background.
+  
+*/
 syntax = "proto3";
 
 package slm;
@@ -12,14 +16,21 @@ message LUT {
   bytes lut = 4;
 }
 
-message 
+message ScreenReply {
+  int32 num_screens = 5;
+}
+
+message Screen {
+  int32 screen = 6;
+}
 
 message Response {
-  bool completed = 5;
-  string error = 6;
+  bool completed = ;
+  string error = ;
 }
 
 service SLM {
   rpc SetPhaseMask(PhaseMask) returns (Response) {}
   rpc SetLUT(LUT) returns (Response) {}
+  rpc Get
 }
