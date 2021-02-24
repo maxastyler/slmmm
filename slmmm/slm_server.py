@@ -59,7 +59,6 @@ class SLM(slm_pb2_grpc.SLMServicer):
 class SLMWorker(qc.QObject):
     start = qc.pyqtSignal()
     set_image = qc.pyqtSignal(np.ndarray)
-    set_lut = qc.pyqtSignal(np.ndarray)
 
     def __init__(self, port, *args, **kwargs):
         super().__init__()
@@ -77,7 +76,7 @@ class SLMDisplay(qc.QObject):
 
     def __init__(self,
                  window_title,
-                 screen,
+                 application,
                  port,
                  slm_display_size=None,
                  slm_position=(0, 0)):
@@ -88,7 +87,6 @@ class SLMDisplay(qc.QObject):
 
         self.worker = SLMWorker(port)
         self.worker.set_image.connect(self.set_image)
-        self.worker.set_lut.connect(self.set_LUT)
 
         self.worker.moveToThread(self.thread)
         self.worker.start.emit()
@@ -223,39 +221,40 @@ class FullScreenPlot(pg.PlotWidget):
         """
         self.hide()
 
-def is_port_in_use(port):
-    host = ''
-    in_use = False
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        try:
-            s.bind((host, port))
-        except:
-            in_use = True
-    return in_use
 
 def qt_setup(port):
     import sys
     app = qw.QApplication(sys.argv)
     # w = SLMDisplay("Stinky butts", app.screens()[0])
-    d = SLMDisplay("hi", app.screens()[0], port)
+    # d = SLMDisplay("hi", app.screens()[0], port)
     # d.show()
-    w, h = (300, 300)
-    im = qg.QImage(np.random.randint(0, 100, (w, h), dtype=np.uint8), w, h, qg.QImage.Format_Grayscale8)
+    size = app.screens()[0].size()
+    w, h = (size.width(), size.height())
+    im_w, im_h = (w//2, h//2)
+    im = qg.QImage(np.random.randint(0, 100, (im_w, im_h), dtype=np.uint8),
+                   im_w, im_h, qg.QImage.Format_Grayscale8)
     pm = qg.QPixmap(im)
     scene = qg.QGraphicsScene()
     scene.addPixmap(pm)
+    scene.setSceneRect(0, 0, w, h)
     gview = qg.QGraphicsView()
     gview.setScene(scene)
-    window = qw.QMainWindow()
-    window.setCentralWidget(gview)
-    window.show()
+    gview.setHorizontalScrollBarPolicy(qc.Qt.ScrollBarAlwaysOff)
+    gview.setVerticalScrollBarPolicy(qc.Qt.ScrollBarAlwaysOff)
+    # window = qw.QMainWindow()
+    # window.setCentralWidget(gview)
+    # window.showFullScreen()
+    gview.showFullScreen()
+    # gview.setContentsMargins(qc.QMargins())
+    gview.setStyleSheet("border: 0px")
+    # gview.translate(-10, -10)
     app.exec()
 
 # class SLMController()
 
+
 if __name__ == '__main__':
-    print(is_port_in_use(8080))
-    p = multiprocessing.Process(target = qt_setup, args = (8080,))
+    p = multiprocessing.Process(target=qt_setup, args=(8080,))
     p.daemon = True
     p.start()
     # p_2 = multiprocessing.Process(target = qt_setup, args = (7069,))

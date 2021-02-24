@@ -22,7 +22,7 @@ def run_slm(port):
     """Run an SLM server on a given port
     """
     app = QApplication([])
-    display = SLMDisplay("SLM", app.screens()[0], port)
+    display = SLMDisplay(f"SLM-{port}", app.screens()[0], port)
     app.exec()
 
 
