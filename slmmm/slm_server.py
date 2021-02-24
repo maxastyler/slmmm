@@ -106,7 +106,8 @@ class SLMDisplay(qc.QObject):
         self.screen.setScene(self.scene)
         self.screen.setHorizontalScrollBarPolicy(qc.Qt.ScrollBarAlwaysOff)
         self.screen.setVerticalScrollBarPolicy(qc.Qt.ScrollBarAlwaysOff)
-
+        self.screen.show()
+        self.screen.hide()
         self.set_screen(0)
 
     @qc.pyqtSlot(int, int)
@@ -127,7 +128,6 @@ class SLMDisplay(qc.QObject):
         shape = (new_screen.geometry().width(),
                  new_screen.geometry().height())
         self.scene.setSceneRect(0, 0, *shape)
-        self.screen.show()
         self.screen.windowHandle().setScreen(new_screen)
         self.screen.showFullScreen()
 
