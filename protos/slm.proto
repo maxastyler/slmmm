@@ -40,10 +40,6 @@ service SLM {
   rpc SetImage(Image) returns (Response) {}
   // Set the screen the slm is appearing on
   rpc SetScreen(Screen) returns (Response) {}
-  // Get the current number of screens
-  rpc GetNumScreens(EmptyParams) returns (ScreenReply) {}
-
-  // Functions for setting the position on the screen
+  // Set the position on the screen
   rpc SetPosition(Position) returns (Response) {}
-  rpc GetPosition(EmptyParams) returns (Position) {}
 }

@@ -19,6 +19,8 @@ import multiprocessing
 
 
 async def serve(worker, port) -> None:
+    """Start a grpc server on the given port
+    """
     server = grpc.aio.server()
     slm_pb2_grpc.add_SLMServicer_to_server(SLM(worker), server)
     listen_addr = f'[::]:{port}'
@@ -37,28 +39,33 @@ class SLM(slm_pb2_grpc.SLMServicer):
     def __init__(self, worker):
         self.worker = worker
 
-    async def SetPhaseMask(self, request, context):
+    async def SetImage(self, request, context):
         try:
-            new_image = np.frombuffer(request.phasemask, dtype=np.complex128).reshape(
+            new_image = np.frombuffer(request.image_bytes, dtype=np.uint8).reshape(
                 (request.width, request.height))
             self.worker.set_image.emit(new_image)
             return slm_pb2.Response(completed=True)
         except ValueError:
-            return slm_pb2.Response(completed=False, error="Got a value error")
+            return slm_pb2.Response(completed=False, error="Couldn't set the image")
 
-    async def SetLUT(self, request, context):
-        try:
-            new_lut = np.frombuffer(request.lut, dtype=float)
-            print(new_lut)
-            self.worker.set_lut.emit(new_lut)
-            return slm_pb2.Response(completed=True)
-        except ValueError:
-            return slm_pb2.Response(completed=False, error="Got a value error")
+    async def SetScreen(self, request, context):
+        self.worker.set_screen.emit(request.screen)
+        return slm_pb2.Response(completed=True)
+
+    async def SetPosition(self, request, context):
+        self.worker.set_position.emit(request.x, request.y)
+        return slm_pb2.Response(completed=True)
 
 
 class SLMWorker(qc.QObject):
+    """A worker to interact with the grpc server.
+    This gets placed in a different thread to the main thread and communicates
+    with the display through qsignals.
+    """
     start = qc.pyqtSignal()
     set_image = qc.pyqtSignal(np.ndarray)
+    set_screen = qc.pyqtSignal(int)
+    set_position = qc.pyqtSignal(int, int)
 
     def __init__(self, port, *args, **kwargs):
         super().__init__()
@@ -82,66 +89,60 @@ class SLMDisplay(qc.QObject):
                  slm_position=(0, 0)):
         super().__init__()
 
+        self.app = application
+
         self.thread = qc.QThread()
         self.thread.start()
 
         self.worker = SLMWorker(port)
         self.worker.set_image.connect(self.set_image)
+        self.worker.set_position.connect(self.set_position)
+        self.worker.set_screen.connect(self.set_screen)
 
         self.worker.moveToThread(self.thread)
         self.worker.start.emit()
 
-        self.screen = screen
+        self.image_ref = None
 
-        self.window = None
-        self.create_screen(screen, slm_display_size, slm_position,
-                           window_title)
+        self.scene = qg.QGraphicsScene()
+        self.screen = qw.QGraphicsView()
+        # this turns off any annoying border the window might have
+        self.screen.setStyleSheet("border: 0px")
+        self.screen.setScene(self.scene)
 
-    def set_screen(self, screen):
+        self.set_screen(0)
+
+    @qc.pyqtSlot(int, int)
+    def set_position(self, x, y):
+        pass
+
+    @qc.pyqtSlot(int)
+    def set_screen(self, screen_index):
         """Set the screen the plot is to be displayed on
         destroys the current window, and creates a new one with the same values
         """
-        slm_display_size = self.window.slm_display_size
-        slm_position = self.window.slm_position
-        image = self.window.image
-        window_title = self.window.windowTitle()
-        LUT = self.window.LUT
-
-        self.create_screen(screen, slm_display_size, slm_position,
-                           window_title)
-        if LUT is not None:
-            self.window.update_LUT(LUT)
-        self.window.set_and_update_image(image)
-
-    def create_screen(self, screen, slm_display_size, slm_position,
-                      window_title):
-        """Set up the slm display on the given screen
-        """
-        self.screen = screen
-
-        if self.window is not None:
-            self.window.close()
-
-        self.window = FullScreenPlot(
-            (screen.geometry().width(), screen.geometry().height()),
-            slm_display_size, slm_position)
-
-        self.window.show()
-        self.window.windowHandle().setScreen(screen)
-        self.window.showFullScreen()
-        self.window.setWindowTitle(window_title)
+        screens = self.app.screens()
+        if len(screens) <= screen_index:
+            print("No screen at that index, setting to last screen")
+            new_screen = screens[-1]
+        else:
+            new_screen = screens[screen_index]
+        shape = (new_screen.geometry().width(),
+                 new_screen.geometry().height())
+        self.scene.setSceneRect(0, 0, *shape)
+        self.screen.show()
+        self.screen.windowHandle().setScreen(new_screen)
+        self.screen.showFullScreen()
 
     @qc.pyqtSlot(np.ndarray)
-    def set_image(self, image, **kwargs):
+    def set_image(self, image):
         '''Set the image which is being displayed on the fullscreen plot
         '''
-        self.window.set_and_update_image(image, **kwargs)
-
-    @qc.pyqtSlot(np.ndarray)
-    def set_LUT(self, lut):
-        """Set the lookup table
-        """
-        self.window.update_LUT(lut)
+        if self.image_ref is not None:
+            self.scene.removeItem(self.image_ref)
+        qimage = qg.QImage(image, *image.shape, qg.QImage.Format_Grayscale8)
+        pixmap = qg.QPixmap(qimage)
+        self.image_ref = self.scene.addPixmap(pixmap)
 
 
 class FullScreenPlot(pg.PlotWidget):
@@ -250,23 +251,26 @@ def qt_setup(port):
     # gview.translate(-10, -10)
     app.exec()
 
-# class SLMController()
-
 
 if __name__ == '__main__':
-    p = multiprocessing.Process(target=qt_setup, args=(8080,))
-    p.daemon = True
-    p.start()
+    # p = multiprocessing.Process(target=qt_setup, args=(8080,))
+    # p.daemon = True
+    # p.start()
     # p_2 = multiprocessing.Process(target = qt_setup, args = (7069,))
     # p_2.start()
-    import slm_client
-    import time
+    # import slm_client
+    # import time
     # print("HI THREE")
     # print(is_port_in_use(7069))
     # asyncio.run(slm_client.run())
-    while True:
-        time.sleep(1)
-        print("OI OIO OI OI ")
+    # while True:
+    # time.sleep(1)
+    # print("OI OIO OI OI ")
+    a = qw.QApplication([])
+    screen = SLMDisplay("hi", a, 2002)
+    im = np.random.randint(0, 255, (100, 100), dtype=np.uint8)
+    screen.set_image(im)
+    a.exec()
     # time.sleep(2)
     # print(is_port_in_use(8080))
     # p.terminate()
