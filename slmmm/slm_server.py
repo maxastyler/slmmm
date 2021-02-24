@@ -133,7 +133,7 @@ class SLMDisplay(qc.QObject):
         self.screen.show()
         self.screen.windowHandle().setScreen(new_screen)
         self.screen.showFullScreen()
-        self.screen.setWindowTitle(f"SLM")
+        self.screen.setWindowTitle("SLM")
 
     @qc.pyqtSlot(np.ndarray)
     def set_image(self, image):
