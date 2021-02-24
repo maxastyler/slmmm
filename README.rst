@@ -22,6 +22,18 @@ A grpc-controlled slm controller running with Qt5 and pyqtgraph
 * Free software: MIT license
 * Documentation: https://slmmm.readthedocs.io.
 
+Examples
+--------
+
+.. code:: python
+
+    from slmmm import SLMController
+
+    controller = SLMController(2020)
+    controller.start_server()
+    controller.set_image(np.random.randint(0, 255, (500, 500), dtype=np.uint8))
+
+    controller.stop_server()
 
 Features
 --------
