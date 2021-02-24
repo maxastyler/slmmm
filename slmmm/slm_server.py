@@ -141,7 +141,14 @@ class SLMDisplay(qc.QObject):
         pixmap = qg.QPixmap(qimage)
         self.image_ref = self.scene.addPixmap(pixmap)
 
+
 if __name__ == '__main__':
-    a = qw.QApplication([])
-    screen = SLMDisplay("hi", a, 2002)
-    a.exec()
+    import argparse
+    parser = argparse.ArgumentParser(description='Run an SLM server')
+    parser.add_argument('port', type=int,
+                        help='an integer for the accumulator')
+
+    args = parser.parse_args()
+    app = qw.QApplication([])
+    screen = SLMDisplay("hi", app, args.port)
+    app.exec()
