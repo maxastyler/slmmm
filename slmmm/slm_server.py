@@ -36,7 +36,7 @@ class SLM(slm_pb2_grpc.SLMServicer):
     async def SetImage(self, request, context):
         try:
             new_image = np.frombuffer(request.image_bytes, dtype=np.uint8).reshape(
-                (request.width, request.height))
+                (request.height, request.width))
             self.worker.set_image.emit(new_image)
             return slm_pb2.Response(completed=True)
         except ValueError:
