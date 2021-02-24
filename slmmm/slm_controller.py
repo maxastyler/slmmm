@@ -4,12 +4,12 @@ import numpy as np
 import socket
 import time
 
-import slm_pb2
-import slm_pb2_grpc
-
 from PyQt5.QtWidgets import QApplication
 
-from slm_server import SLMDisplay
+from . import slm_pb2
+from . import slm_pb2_grpc
+
+from .slm_server import SLMDisplay
 
 
 def is_port_in_use(port):
@@ -75,11 +75,3 @@ class SLMController:
         with grpc.insecure_channel(f"localhost:{self.port}") as channel:
             stub = slm_pb2_grpc.SLMStub(channel)
             stub.SetScreen(slm_pb2.Screen(screen=screen))
-
-if __name__ == '__main__':
-    import time
-    controller = SLMController(2020)
-    controller.start_server()
-    for _ in range(100):
-        controller.set_image(np.random.randint(0, 255, (500, 500), dtype=np.uint8))
-        time.sleep(1)

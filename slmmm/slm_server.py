@@ -8,8 +8,8 @@ import numpy as np
 import grpc
 from grpc import aio
 
-import slm_pb2
-import slm_pb2_grpc
+from . import slm_pb2
+from . import slm_pb2_grpc
 
 
 async def serve(worker, port) -> None:
