@@ -19,36 +19,36 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto3',
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\tslm.proto\x12\x03slm\"=\n\tPhaseMask\x12\x11\n\tphasemask\x18\x01 \x01(\x0c\x12\r\n\x05width\x18\x02 \x01(\x05\x12\x0e\n\x06height\x18\x03 \x01(\x05\"\x12\n\x03LUT\x12\x0b\n\x03lut\x18\x04 \x01(\x0c\",\n\x08Response\x12\x11\n\tcompleted\x18\x05 \x01(\x08\x12\r\n\x05\x65rror\x18\x06 \x01(\t2[\n\x03SLM\x12/\n\x0cSetPhaseMask\x12\x0e.slm.PhaseMask\x1a\r.slm.Response\"\x00\x12#\n\x06SetLUT\x12\x08.slm.LUT\x1a\r.slm.Response\"\x00\x62\x06proto3'
+  serialized_pb=b'\n\tslm.proto\x12\x03slm\";\n\x05Image\x12\x13\n\x0bimage_bytes\x18\x01 \x01(\x0c\x12\r\n\x05width\x18\x02 \x01(\x05\x12\x0e\n\x06height\x18\x03 \x01(\x05\"\"\n\x0bScreenReply\x12\x13\n\x0bnum_screens\x18\x04 \x01(\x05\"\x18\n\x06Screen\x12\x0e\n\x06screen\x18\x05 \x01(\x05\" \n\x08Position\x12\t\n\x01x\x18\x06 \x01(\x05\x12\t\n\x01y\x18\x07 \x01(\x05\"\r\n\x0b\x45mptyParams\",\n\x08Response\x12\x11\n\tcompleted\x18\x08 \x01(\x08\x12\r\n\x05\x65rror\x18\t \x01(\t2\xf1\x01\n\x03SLM\x12\'\n\x08SetImage\x12\n.slm.Image\x1a\r.slm.Response\"\x00\x12)\n\tSetScreen\x12\x0b.slm.Screen\x1a\r.slm.Response\"\x00\x12\x35\n\rGetNumScreens\x12\x10.slm.EmptyParams\x1a\x10.slm.ScreenReply\"\x00\x12-\n\x0bSetPosition\x12\r.slm.Position\x1a\r.slm.Response\"\x00\x12\x30\n\x0bGetPosition\x12\x10.slm.EmptyParams\x1a\r.slm.Position\"\x00\x62\x06proto3'
 )
 
 
 
 
-_PHASEMASK = _descriptor.Descriptor(
-  name='PhaseMask',
-  full_name='slm.PhaseMask',
+_IMAGE = _descriptor.Descriptor(
+  name='Image',
+  full_name='slm.Image',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   create_key=_descriptor._internal_create_key,
   fields=[
     _descriptor.FieldDescriptor(
-      name='phasemask', full_name='slm.PhaseMask.phasemask', index=0,
+      name='image_bytes', full_name='slm.Image.image_bytes', index=0,
       number=1, type=12, cpp_type=9, label=1,
       has_default_value=False, default_value=b"",
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='width', full_name='slm.PhaseMask.width', index=1,
+      name='width', full_name='slm.Image.width', index=1,
       number=2, type=5, cpp_type=1, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='height', full_name='slm.PhaseMask.height', index=2,
+      name='height', full_name='slm.Image.height', index=2,
       number=3, type=5, cpp_type=1, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
@@ -67,22 +67,22 @@ _PHASEMASK = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=18,
-  serialized_end=79,
+  serialized_end=77,
 )
 
 
-_LUT = _descriptor.Descriptor(
-  name='LUT',
-  full_name='slm.LUT',
+_SCREENREPLY = _descriptor.Descriptor(
+  name='ScreenReply',
+  full_name='slm.ScreenReply',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   create_key=_descriptor._internal_create_key,
   fields=[
     _descriptor.FieldDescriptor(
-      name='lut', full_name='slm.LUT.lut', index=0,
-      number=4, type=12, cpp_type=9, label=1,
-      has_default_value=False, default_value=b"",
+      name='num_screens', full_name='slm.ScreenReply.num_screens', index=0,
+      number=4, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
@@ -98,8 +98,104 @@ _LUT = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=81,
-  serialized_end=99,
+  serialized_start=79,
+  serialized_end=113,
+)
+
+
+_SCREEN = _descriptor.Descriptor(
+  name='Screen',
+  full_name='slm.Screen',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='screen', full_name='slm.Screen.screen', index=0,
+      number=5, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=115,
+  serialized_end=139,
+)
+
+
+_POSITION = _descriptor.Descriptor(
+  name='Position',
+  full_name='slm.Position',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='x', full_name='slm.Position.x', index=0,
+      number=6, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='y', full_name='slm.Position.y', index=1,
+      number=7, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=141,
+  serialized_end=173,
+)
+
+
+_EMPTYPARAMS = _descriptor.Descriptor(
+  name='EmptyParams',
+  full_name='slm.EmptyParams',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=175,
+  serialized_end=188,
 )
 
 
@@ -113,14 +209,14 @@ _RESPONSE = _descriptor.Descriptor(
   fields=[
     _descriptor.FieldDescriptor(
       name='completed', full_name='slm.Response.completed', index=0,
-      number=5, type=8, cpp_type=7, label=1,
+      number=8, type=8, cpp_type=7, label=1,
       has_default_value=False, default_value=False,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
       name='error', full_name='slm.Response.error', index=1,
-      number=6, type=9, cpp_type=9, label=1,
+      number=9, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -137,28 +233,52 @@ _RESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=101,
-  serialized_end=145,
+  serialized_start=190,
+  serialized_end=234,
 )
 
-DESCRIPTOR.message_types_by_name['PhaseMask'] = _PHASEMASK
-DESCRIPTOR.message_types_by_name['LUT'] = _LUT
+DESCRIPTOR.message_types_by_name['Image'] = _IMAGE
+DESCRIPTOR.message_types_by_name['ScreenReply'] = _SCREENREPLY
+DESCRIPTOR.message_types_by_name['Screen'] = _SCREEN
+DESCRIPTOR.message_types_by_name['Position'] = _POSITION
+DESCRIPTOR.message_types_by_name['EmptyParams'] = _EMPTYPARAMS
 DESCRIPTOR.message_types_by_name['Response'] = _RESPONSE
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
-PhaseMask = _reflection.GeneratedProtocolMessageType('PhaseMask', (_message.Message,), {
-  'DESCRIPTOR' : _PHASEMASK,
+Image = _reflection.GeneratedProtocolMessageType('Image', (_message.Message,), {
+  'DESCRIPTOR' : _IMAGE,
   '__module__' : 'slm_pb2'
-  # @@protoc_insertion_point(class_scope:slm.PhaseMask)
+  # @@protoc_insertion_point(class_scope:slm.Image)
   })
-_sym_db.RegisterMessage(PhaseMask)
+_sym_db.RegisterMessage(Image)
 
-LUT = _reflection.GeneratedProtocolMessageType('LUT', (_message.Message,), {
-  'DESCRIPTOR' : _LUT,
+ScreenReply = _reflection.GeneratedProtocolMessageType('ScreenReply', (_message.Message,), {
+  'DESCRIPTOR' : _SCREENREPLY,
   '__module__' : 'slm_pb2'
-  # @@protoc_insertion_point(class_scope:slm.LUT)
+  # @@protoc_insertion_point(class_scope:slm.ScreenReply)
   })
-_sym_db.RegisterMessage(LUT)
+_sym_db.RegisterMessage(ScreenReply)
+
+Screen = _reflection.GeneratedProtocolMessageType('Screen', (_message.Message,), {
+  'DESCRIPTOR' : _SCREEN,
+  '__module__' : 'slm_pb2'
+  # @@protoc_insertion_point(class_scope:slm.Screen)
+  })
+_sym_db.RegisterMessage(Screen)
+
+Position = _reflection.GeneratedProtocolMessageType('Position', (_message.Message,), {
+  'DESCRIPTOR' : _POSITION,
+  '__module__' : 'slm_pb2'
+  # @@protoc_insertion_point(class_scope:slm.Position)
+  })
+_sym_db.RegisterMessage(Position)
+
+EmptyParams = _reflection.GeneratedProtocolMessageType('EmptyParams', (_message.Message,), {
+  'DESCRIPTOR' : _EMPTYPARAMS,
+  '__module__' : 'slm_pb2'
+  # @@protoc_insertion_point(class_scope:slm.EmptyParams)
+  })
+_sym_db.RegisterMessage(EmptyParams)
 
 Response = _reflection.GeneratedProtocolMessageType('Response', (_message.Message,), {
   'DESCRIPTOR' : _RESPONSE,
@@ -176,26 +296,56 @@ _SLM = _descriptor.ServiceDescriptor(
   index=0,
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_start=147,
-  serialized_end=238,
+  serialized_start=237,
+  serialized_end=478,
   methods=[
   _descriptor.MethodDescriptor(
-    name='SetPhaseMask',
-    full_name='slm.SLM.SetPhaseMask',
+    name='SetImage',
+    full_name='slm.SLM.SetImage',
     index=0,
     containing_service=None,
-    input_type=_PHASEMASK,
+    input_type=_IMAGE,
     output_type=_RESPONSE,
     serialized_options=None,
     create_key=_descriptor._internal_create_key,
   ),
   _descriptor.MethodDescriptor(
-    name='SetLUT',
-    full_name='slm.SLM.SetLUT',
+    name='SetScreen',
+    full_name='slm.SLM.SetScreen',
     index=1,
     containing_service=None,
-    input_type=_LUT,
+    input_type=_SCREEN,
     output_type=_RESPONSE,
+    serialized_options=None,
+    create_key=_descriptor._internal_create_key,
+  ),
+  _descriptor.MethodDescriptor(
+    name='GetNumScreens',
+    full_name='slm.SLM.GetNumScreens',
+    index=2,
+    containing_service=None,
+    input_type=_EMPTYPARAMS,
+    output_type=_SCREENREPLY,
+    serialized_options=None,
+    create_key=_descriptor._internal_create_key,
+  ),
+  _descriptor.MethodDescriptor(
+    name='SetPosition',
+    full_name='slm.SLM.SetPosition',
+    index=3,
+    containing_service=None,
+    input_type=_POSITION,
+    output_type=_RESPONSE,
+    serialized_options=None,
+    create_key=_descriptor._internal_create_key,
+  ),
+  _descriptor.MethodDescriptor(
+    name='GetPosition',
+    full_name='slm.SLM.GetPosition',
+    index=4,
+    containing_service=None,
+    input_type=_EMPTYPARAMS,
+    output_type=_POSITION,
     serialized_options=None,
     create_key=_descriptor._internal_create_key,
   ),

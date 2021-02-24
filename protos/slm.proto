@@ -1,36 +1,49 @@
 /*
   The server is an SLM server which can display greyscale images on a fullscreen background.
-  
+
+  The server can accept a binarised uint8 numpy array (0-255) colours which it then displays.
+  The position of the image on the screen can also be changed.
 */
+
 syntax = "proto3";
 
 package slm;
 
-message PhaseMask {
-  bytes phasemask = 1;
+message Image {
+  bytes image_bytes = 1;
   int32 width = 2;
   int32 height = 3;
 }
 
-message LUT {
-  bytes lut = 4;
-}
-
 message ScreenReply {
-  int32 num_screens = 5;
+  int32 num_screens = 4;
 }
 
 message Screen {
-  int32 screen = 6;
+  int32 screen = 5;
 }
 
+message Position {
+  int32 x = 6;
+  int32 y = 7;
+}
+
+message EmptyParams {}
+
 message Response {
-  bool completed = ;
-  string error = ;
+  bool completed = 8;
+  string error = 9;
 }
 
 service SLM {
-  rpc SetPhaseMask(PhaseMask) returns (Response) {}
-  rpc SetLUT(LUT) returns (Response) {}
-  rpc Get
+  // Set the image from a uint8 numpy bytes array and a width and height
+  rpc SetImage(Image) returns (Response) {}
+  // Set the screen the slm is appearing on
+  rpc SetScreen(Screen) returns (Response) {}
+  // Get the current number of screens
+  rpc GetNumScreens(EmptyParams) returns (ScreenReply) {}
+
+  // Functions for setting the position on the screen
+  rpc SetPosition(Position) returns (Response) {}
+  rpc GetPosition(EmptyParams) returns (Position) {}
 }
