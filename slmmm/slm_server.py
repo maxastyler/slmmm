@@ -1,12 +1,8 @@
 import asyncio
-import logging
 
 import PyQt5.QtWidgets as qw
 import PyQt5.QtCore as qc
 import PyQt5.QtGui as qg
-import pyqtgraph as pg
-import socket
-
 import numpy as np
 
 import grpc
@@ -14,8 +10,6 @@ from grpc import aio
 
 import slm_pb2
 import slm_pb2_grpc
-
-import multiprocessing
 
 
 async def serve(worker, port) -> None:
@@ -109,6 +103,8 @@ class SLMDisplay(qc.QObject):
         # this turns off any annoying border the window might have
         self.screen.setStyleSheet("border: 0px")
         self.screen.setScene(self.scene)
+        self.screen.setHorizontalScrollBarPolicy(qc.Qt.ScrollBarAlwaysOff)
+        self.screen.setVerticalScrollBarPolicy(qc.Qt.ScrollBarAlwaysOff)
 
         self.set_screen(0)
 
@@ -144,136 +140,7 @@ class SLMDisplay(qc.QObject):
         pixmap = qg.QPixmap(qimage)
         self.image_ref = self.scene.addPixmap(pixmap)
 
-
-class FullScreenPlot(pg.PlotWidget):
-    """Class to display a numpy array as a fullscreen plot
-    """
-
-    def __init__(self,
-                 screen_size,
-                 slm_display_size=None,
-                 slm_position=(0, 0)):
-        '''Take in the screen size which to plot to, the slm display size if
-        it differs from the screen size and the slm position if it needs to
-        be placed at a specific point on the plot
-
-        The slm position is taken from the top-left corner of the image
-        '''
-        super().__init__()
-
-        self.screen_size = None
-        self.slm_display_size = None
-        self.slm_position = None
-        self.image = None
-
-        # update the size parameters
-        if slm_display_size is None:
-            slm_display_size = screen_size
-        self.screen_size = screen_size
-        self.slm_display_size = slm_display_size
-        self.slm_position = slm_position
-        self.image = np.zeros(self.slm_display_size)
-        self.LUT = None
-
-        self.set_limits()
-        self.hideAxis('left')
-        self.hideAxis('bottom')
-
-        # set a placeholder image
-        self.image_display = pg.ImageItem(self.image)
-        self.addItem(self.image_display)
-
-    def set_limits(self):
-        '''Set the limits of the display
-        '''
-        self.setLimits(xMin=0 - self.slm_position[0],
-                       xMax=self.screen_size[0] - self.slm_position[0],
-                       yMin=self.slm_display_size[1] - self.screen_size[1] +
-                       self.slm_position[1],
-                       yMax=self.slm_display_size[1] + self.slm_position[1],
-                       minXRange=self.screen_size[0],
-                       maxXRange=self.screen_size[0],
-                       minYRange=self.screen_size[1],
-                       maxYRange=self.screen_size[1])
-
-    @qc.pyqtSlot(np.ndarray)
-    def set_and_update_image(self, new_image, **kwargs):
-        '''Take a numpy array and set it as the new image,
-        then update the display
-        '''
-        self.image = new_image
-        self.image_display.setImage(self.image, **kwargs)
-
-    @qc.pyqtSlot(np.ndarray)
-    def update_LUT(self, LUT):
-        '''Update the lookup table for the plot
-        '''
-        self.image_display.setLookupTable(LUT)
-        self.LUT = LUT
-
-    def update_SLM_size(self, size):
-        '''Update the display size of the slm
-        '''
-        self.slm_display_size = size
-        self.set_limits()
-
-    def closeEvent(self, event):
-        """Override the close event, so it just hides
-        """
-        self.hide()
-
-
-def qt_setup(port):
-    import sys
-    app = qw.QApplication(sys.argv)
-    # w = SLMDisplay("Stinky butts", app.screens()[0])
-    # d = SLMDisplay("hi", app.screens()[0], port)
-    # d.show()
-    size = app.screens()[0].size()
-    w, h = (size.width(), size.height())
-    im_w, im_h = (w//2, h//2)
-    im = qg.QImage(np.random.randint(0, 100, (im_w, im_h), dtype=np.uint8),
-                   im_w, im_h, qg.QImage.Format_Grayscale8)
-    pm = qg.QPixmap(im)
-    scene = qg.QGraphicsScene()
-    scene.addPixmap(pm)
-    scene.setSceneRect(0, 0, w, h)
-    gview = qg.QGraphicsView()
-    gview.setScene(scene)
-    gview.setHorizontalScrollBarPolicy(qc.Qt.ScrollBarAlwaysOff)
-    gview.setVerticalScrollBarPolicy(qc.Qt.ScrollBarAlwaysOff)
-    # window = qw.QMainWindow()
-    # window.setCentralWidget(gview)
-    # window.showFullScreen()
-    gview.showFullScreen()
-    # gview.setContentsMargins(qc.QMargins())
-    gview.setStyleSheet("border: 0px")
-    # gview.translate(-10, -10)
-    app.exec()
-
-
 if __name__ == '__main__':
-    # p = multiprocessing.Process(target=qt_setup, args=(8080,))
-    # p.daemon = True
-    # p.start()
-    # p_2 = multiprocessing.Process(target = qt_setup, args = (7069,))
-    # p_2.start()
-    # import slm_client
-    # import time
-    # print("HI THREE")
-    # print(is_port_in_use(7069))
-    # asyncio.run(slm_client.run())
-    # while True:
-    # time.sleep(1)
-    # print("OI OIO OI OI ")
     a = qw.QApplication([])
     screen = SLMDisplay("hi", a, 2002)
-    im = np.random.randint(0, 255, (100, 100), dtype=np.uint8)
-    screen.set_image(im)
     a.exec()
-    # time.sleep(2)
-    # print(is_port_in_use(8080))
-    # p.terminate()
-    # print("\n\n\nHI THERE :))))\n\n\n")
-    # p.terminate()
-    # p_2.terminate()
