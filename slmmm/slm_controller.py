@@ -1,4 +1,12 @@
 import multiprocessing
+import grpc
+import numpy as np
+import socket
+import time
+
+import slm_pb2
+import slm_pb2_grpc
+
 from PyQt5.QtWidgets import QApplication
 
 from slm_server import SLMDisplay
@@ -22,7 +30,7 @@ def run_slm(port):
     """Run an SLM server on a given port
     """
     app = QApplication([])
-    display = SLMDisplay(f"SLM-{port}", app.screens()[0], port)
+    display = SLMDisplay(f"SLM-{port}", app, port)
     app.exec()
 
 
@@ -41,10 +49,37 @@ class SLMController:
         except:
             pass
 
-        self.slm_server = multiprocessing.Process(
-            target=run_slm, args=(self.port,))
-        self.slm_server.daemon = True
-        self.slm_server.start()
+        if is_port_in_use(self.port):
+            print("Port already in use. Choose another port.")
+        else:
+            self.slm_server = multiprocessing.Process(
+                target=run_slm, args=(self.port,))
+            self.slm_server.daemon = True
+            self.slm_server.start()
+        time.sleep(0.1)
 
     def stop_server(self):
         self.slm_server.terminate()
+
+    def set_image(self, image: np.ndarray):
+        """Put the given uint8 numpy array onto the slm screen
+        """
+        with grpc.insecure_channel(f"localhost:{self.port}") as channel:
+            stub = slm_pb2_grpc.SLMStub(channel)
+            stub.SetImage(slm_pb2.Image(image_bytes=image.tobytes(),
+                                        width=image.shape[0], height=image.shape[1]))
+
+    def set_screen(self, screen: int):
+        """Put the slm on the given screen
+        """
+        with grpc.insecure_channel(f"localhost:{self.port}") as channel:
+            stub = slm_pb2_grpc.SLMStub(channel)
+            stub.SetScreen(slm_pb2.Screen(screen=screen))
+
+if __name__ == '__main__':
+    import time
+    controller = SLMController(2020)
+    controller.start_server()
+    for _ in range(100):
+        controller.set_image(np.random.randint(0, 255, (500, 500), dtype=np.uint8))
+        time.sleep(1)

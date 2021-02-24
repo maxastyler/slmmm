@@ -98,8 +98,9 @@ class SLMDisplay(qc.QObject):
 
         self.image_ref = None
 
-        self.scene = qg.QGraphicsScene()
+        self.scene = qw.QGraphicsScene()
         self.screen = qw.QGraphicsView()
+
         # this turns off any annoying border the window might have
         self.screen.setStyleSheet("border: 0px")
         self.screen.setScene(self.scene)

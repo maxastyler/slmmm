@@ -13,7 +13,8 @@ async def run() -> None:
     while True:
         async with grpc.aio.insecure_channel("localhost:2002") as channel:
             stub = slm_pb2_grpc.SLMStub(channel)
-            w = h = np.random.randint(10, 500)
+            # w = h = np.random.randint(10, 500)
+            w, h = (2000, 2000)
             response = await stub.SetImage(slm_pb2.Image(image_bytes=np.random.randint(0, 255, (w, h), dtype=np.uint8).tobytes(), width=w, height=h))
         print(f"Received: {response.completed}")
         time.sleep(1)
