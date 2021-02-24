@@ -99,15 +99,10 @@ class SLMDisplay(qc.QObject):
         self.image_ref = None
 
         self.scene = qw.QGraphicsScene()
-        self.screen = qw.QGraphicsView()
+
+        self.screen = None
 
         # this turns off any annoying border the window might have
-        self.screen.setStyleSheet("border: 0px")
-        self.screen.setScene(self.scene)
-        self.screen.setHorizontalScrollBarPolicy(qc.Qt.ScrollBarAlwaysOff)
-        self.screen.setVerticalScrollBarPolicy(qc.Qt.ScrollBarAlwaysOff)
-        self.screen.show()
-        self.screen.hide()
         self.set_screen(0)
 
     @qc.pyqtSlot(int, int)
@@ -127,9 +122,18 @@ class SLMDisplay(qc.QObject):
             new_screen = screens[screen_index]
         shape = (new_screen.geometry().width(),
                  new_screen.geometry().height())
+        if self.screen is not None:
+            self.screen.close()
+        self.screen = qw.QGraphicsView()
         self.scene.setSceneRect(0, 0, *shape)
+        self.screen.setStyleSheet("border: 0px")
+        self.screen.setScene(self.scene)
+        self.screen.setHorizontalScrollBarPolicy(qc.Qt.ScrollBarAlwaysOff)
+        self.screen.setVerticalScrollBarPolicy(qc.Qt.ScrollBarAlwaysOff)
+        self.screen.show()
         self.screen.windowHandle().setScreen(new_screen)
         self.screen.showFullScreen()
+        self.screen.setWindowTitle(f"SLM")
 
     @qc.pyqtSlot(np.ndarray)
     def set_image(self, image):
