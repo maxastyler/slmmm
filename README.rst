@@ -16,7 +16,7 @@ slmmm
 
 
 
-A grpc-controlled slm controller running with Qt5 and pyqtgraph
+A grpc-controlled slm controller running with Qt5
 
 
 * Free software: MIT license
