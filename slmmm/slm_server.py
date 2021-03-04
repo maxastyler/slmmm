@@ -1,5 +1,3 @@
-import asyncio
-
 import PyQt5.QtWidgets as qw
 import PyQt5.QtCore as qc
 import PyQt5.QtGui as qg
