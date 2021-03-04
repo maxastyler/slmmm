@@ -69,6 +69,14 @@ class SLMController:
             stub.SetImage(slm_pb2.Image(image_bytes=image.tobytes(),
                                         width=image.shape[0], height=image.shape[1]))
 
+    def set_image_colour(self, image: np.ndarray):
+        """Put the given colour uint8 numpy array onto the slm screen
+        """
+        with grpc.insecure_channel(f"localhost:{self.port}") as channel:
+            stub = slm_pb2_grpc.SLMStub(channel)
+            stub.SetImageColour([slm_pb2.Image(image_bytes=im.tobytes(
+            ), width=im.shape[0], height=im.shape[1]) for im in image])
+
     def set_screen(self, screen: int):
         """Put the slm on the given screen
         """
