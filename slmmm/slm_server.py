@@ -42,6 +42,20 @@ class SLM(slm_pb2_grpc.SLMServicer):
         except ValueError:
             return slm_pb2.Response(completed=False, error="Couldn't set the image")
 
+    async def SetImageColour(self, request_iterator, context):
+        try:
+            image_bytes = []
+            for request in request_iterator:
+                image_bytes.append(np.frombuffer(request.image_bytes, dtype=np.uint8).reshape(
+                    request.height, request.width))
+            assert len(image_bytes) == 3, "Image should have 3 channels"
+
+            self.worker.set_image_colour.emit(np.array(image_bytes))
+        except ValueError:
+            return slm_pb2.Response(completed=False, error="Couldn't set the image")
+        except AssertionError:
+            return slm_pb2.Response(completed=False, error="Image should have 3 channels")
+
     async def SetScreen(self, request, context):
         self.worker.set_screen.emit(request.screen)
         return slm_pb2.Response(completed=True)
@@ -58,6 +72,7 @@ class SLMWorker(qc.QObject):
     """
     start = qc.pyqtSignal()
     set_image = qc.pyqtSignal(np.ndarray)
+    set_image_colour = qc.pyqtSignal(np.ndarray)
     set_screen = qc.pyqtSignal(int)
     set_position = qc.pyqtSignal(int, int)
 
@@ -90,6 +105,7 @@ class SLMDisplay(qc.QObject):
 
         self.worker = SLMWorker(port)
         self.worker.set_image.connect(self.set_image)
+        self.worker.set_image_colour.connect(self.set_image_colour)
         self.worker.set_position.connect(self.set_position)
         self.worker.set_screen.connect(self.set_screen)
 
@@ -142,6 +158,16 @@ class SLMDisplay(qc.QObject):
         if self.image_ref is not None:
             self.scene.removeItem(self.image_ref)
         qimage = qg.QImage(image, *image.shape, qg.QImage.Format_Grayscale8)
+        pixmap = qg.QPixmap(qimage)
+        self.image_ref = self.scene.addPixmap(pixmap)
+
+    @qc.pyqtSlot(np.ndarray)
+    def set_image_colour(self, image):
+        '''Set the image which is being displayed on the fullscreen plot
+        '''
+        if self.image_ref is not None:
+            self.scene.removeItem(self.image_ref)
+        qimage = qg.QImage(image, image.shape[1], image.shape[2], qg.QImage.Format_RGB888)
         pixmap = qg.QPixmap(qimage)
         self.image_ref = self.scene.addPixmap(pixmap)
 

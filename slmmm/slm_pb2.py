@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto3',
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\tslm.proto\x12\x03slm\";\n\x05Image\x12\x13\n\x0bimage_bytes\x18\x01 \x01(\x0c\x12\r\n\x05width\x18\x02 \x01(\x05\x12\x0e\n\x06height\x18\x03 \x01(\x05\"\"\n\x0bScreenReply\x12\x13\n\x0bnum_screens\x18\x04 \x01(\x05\"\x18\n\x06Screen\x12\x0e\n\x06screen\x18\x05 \x01(\x05\" \n\x08Position\x12\t\n\x01x\x18\x06 \x01(\x05\x12\t\n\x01y\x18\x07 \x01(\x05\"\r\n\x0b\x45mptyParams\",\n\x08Response\x12\x11\n\tcompleted\x18\x08 \x01(\x08\x12\r\n\x05\x65rror\x18\t \x01(\t2\xf1\x01\n\x03SLM\x12\'\n\x08SetImage\x12\n.slm.Image\x1a\r.slm.Response\"\x00\x12)\n\tSetScreen\x12\x0b.slm.Screen\x1a\r.slm.Response\"\x00\x12\x35\n\rGetNumScreens\x12\x10.slm.EmptyParams\x1a\x10.slm.ScreenReply\"\x00\x12-\n\x0bSetPosition\x12\r.slm.Position\x1a\r.slm.Response\"\x00\x12\x30\n\x0bGetPosition\x12\x10.slm.EmptyParams\x1a\r.slm.Position\"\x00\x62\x06proto3'
+  serialized_pb=b'\n\tslm.proto\x12\x03slm\";\n\x05Image\x12\x13\n\x0bimage_bytes\x18\x01 \x01(\x0c\x12\r\n\x05width\x18\x02 \x01(\x05\x12\x0e\n\x06height\x18\x03 \x01(\x05\"\"\n\x0bScreenReply\x12\x13\n\x0bnum_screens\x18\x04 \x01(\x05\"\x18\n\x06Screen\x12\x0e\n\x06screen\x18\x05 \x01(\x05\" \n\x08Position\x12\t\n\x01x\x18\x06 \x01(\x05\x12\t\n\x01y\x18\x07 \x01(\x05\"\r\n\x0b\x45mptyParams\",\n\x08Response\x12\x11\n\tcompleted\x18\x08 \x01(\x08\x12\r\n\x05\x65rror\x18\t \x01(\t2\xb9\x01\n\x03SLM\x12\'\n\x08SetImage\x12\n.slm.Image\x1a\r.slm.Response\"\x00\x12/\n\x0eSetImageColour\x12\n.slm.Image\x1a\r.slm.Response\"\x00(\x01\x12)\n\tSetScreen\x12\x0b.slm.Screen\x1a\r.slm.Response\"\x00\x12-\n\x0bSetPosition\x12\r.slm.Position\x1a\r.slm.Response\"\x00\x62\x06proto3'
 )
 
 
@@ -297,7 +297,7 @@ _SLM = _descriptor.ServiceDescriptor(
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
   serialized_start=237,
-  serialized_end=478,
+  serialized_end=422,
   methods=[
   _descriptor.MethodDescriptor(
     name='SetImage',
@@ -310,22 +310,22 @@ _SLM = _descriptor.ServiceDescriptor(
     create_key=_descriptor._internal_create_key,
   ),
   _descriptor.MethodDescriptor(
-    name='SetScreen',
-    full_name='slm.SLM.SetScreen',
+    name='SetImageColour',
+    full_name='slm.SLM.SetImageColour',
     index=1,
     containing_service=None,
-    input_type=_SCREEN,
+    input_type=_IMAGE,
     output_type=_RESPONSE,
     serialized_options=None,
     create_key=_descriptor._internal_create_key,
   ),
   _descriptor.MethodDescriptor(
-    name='GetNumScreens',
-    full_name='slm.SLM.GetNumScreens',
+    name='SetScreen',
+    full_name='slm.SLM.SetScreen',
     index=2,
     containing_service=None,
-    input_type=_EMPTYPARAMS,
-    output_type=_SCREENREPLY,
+    input_type=_SCREEN,
+    output_type=_RESPONSE,
     serialized_options=None,
     create_key=_descriptor._internal_create_key,
   ),
@@ -336,16 +336,6 @@ _SLM = _descriptor.ServiceDescriptor(
     containing_service=None,
     input_type=_POSITION,
     output_type=_RESPONSE,
-    serialized_options=None,
-    create_key=_descriptor._internal_create_key,
-  ),
-  _descriptor.MethodDescriptor(
-    name='GetPosition',
-    full_name='slm.SLM.GetPosition',
-    index=4,
-    containing_service=None,
-    input_type=_EMPTYPARAMS,
-    output_type=_POSITION,
     serialized_options=None,
     create_key=_descriptor._internal_create_key,
   ),
