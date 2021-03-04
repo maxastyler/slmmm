@@ -6,34 +6,28 @@ import PyQt5.QtGui as qg
 import numpy as np
 
 import grpc
-from grpc import aio
+from concurrent import futures
 
 from slmmm import slm_pb2
 from slmmm import slm_pb2_grpc
 
 
-async def serve(worker, port) -> None:
+def serve(worker, port) -> None:
     """Start a grpc server on the given port
     """
-    server = grpc.aio.server()
+    server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
     slm_pb2_grpc.add_SLMServicer_to_server(SLM(worker), server)
     listen_addr = f'[::]:{port}'
     server.add_insecure_port(listen_addr)
-    await server.start()
-    try:
-        await server.wait_for_termination()
-    except KeyboardInterrupt:
-        # Shuts down the server with 0 seconds of grace period. During the
-        # grace period, the server won't accept new connections and allow
-        # existing RPCs to continue within the grace period.
-        await server.stop(0)
+    server.start()
+    server.wait_for_termination()
 
 
 class SLM(slm_pb2_grpc.SLMServicer):
     def __init__(self, worker):
         self.worker = worker
 
-    async def SetImage(self, request, context):
+    def SetImage(self, request, context):
         try:
             new_image = np.frombuffer(request.image_bytes, dtype=np.uint8).reshape(
                 (request.height, request.width))
@@ -42,7 +36,7 @@ class SLM(slm_pb2_grpc.SLMServicer):
         except ValueError:
             return slm_pb2.Response(completed=False, error="Couldn't set the image")
 
-    async def SetImageColour(self, request_iterator, context):
+    def SetImageColour(self, request_iterator, context):
         try:
             image_bytes = []
             for request in request_iterator:
@@ -50,17 +44,19 @@ class SLM(slm_pb2_grpc.SLMServicer):
                     request.height, request.width))
             assert len(image_bytes) == 3, "Image should have 3 channels"
 
-            self.worker.set_image_colour.emit(np.array(image_bytes))
+            self.worker.set_image_colour.emit(
+                np.transpose(np.array(image_bytes), axes=(1, 2, 0)).copy())
+            return slm_pb2.Response(completed=True)
         except ValueError:
             return slm_pb2.Response(completed=False, error="Couldn't set the image")
         except AssertionError:
             return slm_pb2.Response(completed=False, error="Image should have 3 channels")
 
-    async def SetScreen(self, request, context):
+    def SetScreen(self, request, context):
         self.worker.set_screen.emit(request.screen)
         return slm_pb2.Response(completed=True)
 
-    async def SetPosition(self, request, context):
+    def SetPosition(self, request, context):
         self.worker.set_position.emit(request.x, request.y)
         return slm_pb2.Response(completed=True)
 
@@ -83,7 +79,7 @@ class SLMWorker(qc.QObject):
 
     @qc.pyqtSlot()
     def run(self):
-        asyncio.run(serve(self, self.port))
+        serve(self, self.port)
 
 
 class SLMDisplay(qc.QObject):
@@ -163,11 +159,12 @@ class SLMDisplay(qc.QObject):
 
     @qc.pyqtSlot(np.ndarray)
     def set_image_colour(self, image):
-        '''Set the image which is being displayed on the fullscreen plot
+        '''Set the image which is being displayed on the fullscreen plot in colour
         '''
         if self.image_ref is not None:
             self.scene.removeItem(self.image_ref)
-        qimage = qg.QImage(image, image.shape[1], image.shape[2], qg.QImage.Format_RGB888)
+        qimage = qg.QImage(
+            image, image.shape[0], image.shape[1], qg.QImage.Format_RGB888)
         pixmap = qg.QPixmap(qimage)
         self.image_ref = self.scene.addPixmap(pixmap)
 
