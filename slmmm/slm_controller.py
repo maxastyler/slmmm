@@ -6,10 +6,10 @@ import time
 
 from PyQt5.QtWidgets import QApplication
 
-from . import slm_pb2
-from . import slm_pb2_grpc
+from slmmm import slm_pb2
+from slmmm import slm_pb2_grpc
 
-from .slm_server import SLMDisplay
+from slmmm.slm_server import SLMDisplay
 
 
 def is_port_in_use(port):
