@@ -38,6 +38,9 @@ message Response {
 service SLM {
   // Set the image from a uint8 numpy bytes array and a width and height
   rpc SetImage(Image) returns (Response) {}
+  // Set the image from a stream of uint8 numpy byte arrays, with a width and height
+  // The order of the arrays should be [R, G, B]
+  rpc SetImageColour(stream Image) returns (Response) {}
   // Set the screen the slm is appearing on
   rpc SetScreen(Screen) returns (Response) {}
   // Set the position on the screen
